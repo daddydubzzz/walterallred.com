@@ -4,12 +4,36 @@
 
 @layer base {
   body {
-    @apply bg-black text-white antialiased;
+    @apply bg-black text-white antialiased scroll-smooth;
+  }
+
+  ::selection {
+    @apply bg-purple-500/30;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32;
+  }
+  
+  .section-title {
+    @apply text-4xl md:text-5xl font-bold mb-12 text-center;
+  }
+  
+  .gradient-border {
+    @apply border border-transparent bg-gradient-to-r from-purple-500/50 to-pink-500/50 rounded-xl backdrop-blur-sm;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500;
+  }
+  
+  .bg-gradient-subtle {
+    @apply bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10;
   }
 }
