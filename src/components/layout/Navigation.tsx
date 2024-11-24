@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Briefcase, Code, Mail, Compass, Atom } from 'lucide-react'
+import { Home, Briefcase, Code, Mail, Compass } from 'lucide-react'
 
 interface NavItem {
   name: string
@@ -102,19 +102,20 @@ export const Navigation = () => {
                      border border-white/10 shadow-lg
                      overflow-hidden group"
           >
-            {/* Animated background rings */}
+            {/* Enhanced animated background rings with more vibrant colors */}
             <div className="absolute inset-0">
               <motion.div
                 animate={{
                   background: [
-                    'radial-gradient(circle at center, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
-                    'radial-gradient(circle at center, rgba(236, 72, 153, 0.3) 0%, transparent 70%)',
-                    'radial-gradient(circle at center, rgba(139, 92, 246, 0.3) 0%, transparent 70%)'
+                    'radial-gradient(circle at center, rgba(167, 139, 250, 0.5) 0%, transparent 70%)',
+                    'radial-gradient(circle at center, rgba(244, 114, 182, 0.5) 0%, transparent 70%)',
+                    'radial-gradient(circle at center, rgba(99, 102, 241, 0.5) 0%, transparent 70%)',
+                    'radial-gradient(circle at center, rgba(167, 139, 250, 0.5) 0%, transparent 70%)'
                   ],
-                  scale: [1, 1.2, 1],
+                  scale: [1, 1.2, 1.1, 1],
                 }}
                 transition={{
-                  duration: 4,
+                  duration: 3,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
@@ -123,18 +124,18 @@ export const Navigation = () => {
               <motion.div
                 animate={{
                   scale: [1.2, 1, 1.2],
-                  opacity: [0.3, 0.5, 0.3]
+                  opacity: [0.4, 0.7, 0.4]
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute inset-0 rounded-full border border-white/20"
+                className="absolute inset-0 rounded-full border border-white/40"
               />
             </div>
 
-            {/* Icon */}
+            {/* Icon with enhanced glow */}
             <motion.div
               animate={{
                 scale: [1, 1.1, 1],
@@ -147,17 +148,19 @@ export const Navigation = () => {
               }}
               className="relative z-10"
             >
-              <Atom className="w-5 h-5 text-white/80 group-hover:text-white
-                           transition-colors duration-300" />
+              <Compass className="w-5 h-5 text-white group-hover:text-transparent
+                       group-hover:bg-clip-text group-hover:bg-gradient-to-r
+                       group-hover:from-violet-400 group-hover:via-fuchsia-400 
+                       group-hover:to-cyan-400 transition-colors duration-300" />
             </motion.div>
 
-            {/* Glowing border */}
+            {/* Enhanced glowing border with more vibrant colors */}
             <motion.div
               animate={{
                 boxShadow: [
-                  '0 0 0 0px rgba(139, 92, 246, 0.3)',
-                  '0 0 0 4px rgba(139, 92, 246, 0)',
-                  '0 0 0 0px rgba(139, 92, 246, 0.3)'
+                  '0 0 0 0px rgba(167, 139, 250, 0.5)',
+                  '0 0 0 4px rgba(167, 139, 250, 0.2)',
+                  '0 0 0 0px rgba(167, 139, 250, 0.5)'
                 ]
               }}
               transition={{
@@ -229,11 +232,11 @@ export const Navigation = () => {
                 <svg 
                   className="absolute inset-0 w-full h-full pointer-events-none"
                 >
-                  {/* Single circular path */}
+                  {/* Single circular path - reduced radius from 120 to 75 */}
                   <motion.circle
                     cx="150"
                     cy="150"
-                    r="120"
+                    r="75"
                     fill="none"
                     stroke="url(#gradient-stroke-circle)"
                     strokeWidth="2"
@@ -300,20 +303,35 @@ export const Navigation = () => {
                 >
                   {navItems.map((item, index) => {
                     const angle = (index * 360) / navItems.length
-                    const radius = 120
+                    const baseRadius = 90
                     
                     return (
                       <motion.a
                         key={item.name}
                         href={item.href}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
+                        initial={{ opacity: 1, scale: 1 }}
                         style={{ 
                           position: 'absolute',
-                          left: `${150 + radius * Math.cos((angle * Math.PI) / 180)}px`,
-                          top: `${150 + radius * Math.sin((angle * Math.PI) / 180)}px`,
-                          transform: 'translate(-50%, -50%)'
+                          left: "150px",
+                          top: "150px",
+                        }}
+                        animate={{
+                          x: [
+                            baseRadius * Math.cos((angle * Math.PI) / 180),
+                            baseRadius * (1 + Math.max(0, Math.cos((angle * Math.PI) / 180)) * 0.3) * Math.cos((angle * Math.PI) / 180),
+                            baseRadius * Math.cos((angle * Math.PI) / 180)
+                          ],
+                          y: [
+                            baseRadius * Math.sin((angle * Math.PI) / 180),
+                            baseRadius * (1 + Math.max(0, Math.cos((angle * Math.PI) / 180)) * 0.3) * Math.sin((angle * Math.PI) / 180),
+                            baseRadius * Math.sin((angle * Math.PI) / 180)
+                          ]
+                        }}
+                        transition={{
+                          duration: 20,
+                          repeat: Infinity,
+                          ease: "linear",
+                          times: [0, 0.5, 1]
                         }}
                         onMouseEnter={() => !isMobile && setActiveIndex(index)}
                         onMouseLeave={() => !isMobile && setActiveIndex(null)}
@@ -322,29 +340,31 @@ export const Navigation = () => {
                           setIsMenuOpen(false)
                         }}
                       >
-                        {/* Particle trail effect */}
                         <motion.div
-                          animate={{ opacity: [0, 0.2, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="absolute inset-0 -z-10"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent 
-                                        via-white/10 to-transparent rounded-full blur-sm" />
-                        </motion.div>
-
-                        <motion.div
-                          whileHover={{ scale: 1.2 }}
                           animate={{ rotate: -360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                          whileHover={{ scale: 1.2 }}
                           className={`
                             p-4 rounded-full relative backdrop-blur-lg
                             before:absolute before:inset-0 before:rounded-full
                             before:bg-gradient-to-b before:from-white/10 before:to-transparent
-                            bg-black/60 hover:bg-black/40
+                            ${index === 0 && 'bg-cyan-500/20 hover:bg-cyan-500/30'}
+                            ${index === 1 && 'bg-violet-500/20 hover:bg-violet-500/30'}
+                            ${index === 2 && 'bg-rose-500/20 hover:bg-rose-500/30'}
+                            ${index === 3 && 'bg-amber-500/20 hover:bg-amber-500/30'}
+                            transition-colors duration-300
                           `}
                         >
-                          {item.icon}
-                          <div className="absolute -inset-1 bg-white/5 rounded-full blur-sm" />
+                          {/* Icon without any glow effects */}
+                          <div className="relative z-10">
+                            <div className={`
+                              text-white/90 group-hover:text-transparent
+                              group-hover:bg-clip-text group-hover:bg-gradient-to-r
+                              ${item.color}
+                            `}>
+                              {item.icon}
+                            </div>
+                          </div>
                           
                           <motion.span
                             initial={{ opacity: 0, y: 10 }}
