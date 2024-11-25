@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Briefcase, Code, Mail, Compass } from 'lucide-react'
+import { Compass } from 'lucide-react'
+import { 
+  Planet,         // Home - represents our world/starting point
+  Rocket,         // Projects - represents launches/creations
+  Sparkle,        // Changed from SparkleSquare
+  Meteor          // Changed from Comet
+} from "@phosphor-icons/react"
+import StarField from './StarField'
 
 interface NavItem {
   name: string
@@ -13,28 +20,44 @@ const navItems: NavItem[] = [
   { 
     name: 'Home', 
     href: '#home', 
-    icon: <Home className="w-5 h-5" />, 
+    icon: <Planet weight="duotone" className="w-6 h-6" />, 
     color: 'from-blue-500 to-blue-600'
   },
   { 
     name: 'Projects', 
     href: '#projects', 
-    icon: <Briefcase className="w-5 h-5" />, 
-    color: 'from-purple-500 to-purple-600'
+    icon: <Rocket weight="duotone" className="w-6 h-6" />, 
+    color: 'from-zinc-400 to-zinc-600'
   },
   { 
     name: 'Skills', 
     href: '#skills', 
-    icon: <Code className="w-5 h-5" />, 
+    icon: <Sparkle weight="duotone" className="w-6 h-6" />, 
     color: 'from-pink-500 to-pink-600'
   },
   { 
     name: 'Contact', 
     href: '#contact', 
-    icon: <Mail className="w-5 h-5" />, 
+    icon: <Meteor weight="duotone" className="w-6 h-6" />, 
     color: 'from-orange-500 to-orange-600'
   },
 ]
+
+// Constants for SVG orbit circles
+const ORBIT_RADII = {
+  HOME: 70,
+  PROJECTS: 100,
+  SKILLS: 130,
+  CONTACT: 160
+}
+
+// Constants for menu item positions
+const MENU_POSITIONS = {
+  HOME: 30,
+  PROJECTS: 70,
+  SKILLS: 150,
+  CONTACT: 180
+}
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -52,25 +75,40 @@ export const Navigation = () => {
   }, [])
 
   useEffect(() => {
+    let scrollPosition = 0;
+
     if (isMenuOpen) {
-      const scrollY = window.scrollY
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollY}px`
-      document.body.style.width = '100%'
+      // Store the current scroll position
+      scrollPosition = window.scrollY;
+      // Prevent scrolling while menu is open
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${scrollPosition}px`;
     } else {
-      const scrollY = document.body.style.top
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-      window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      // Restore scrolling and position when menu closes
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      // Only restore scroll if we have a stored position
+      if (scrollPosition) {
+        window.scrollTo(0, scrollPosition);
+      }
     }
 
     return () => {
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-    }
-  }, [isMenuOpen])
+      // Cleanup styles
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      // Restore scroll position on unmount if menu was open
+      if (isMenuOpen && scrollPosition) {
+        window.scrollTo(0, scrollPosition);
+      }
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -98,124 +136,71 @@ export const Navigation = () => {
             onClick={() => setIsMenuOpen(true)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="relative p-4 rounded-full bg-black/40 backdrop-blur-lg 
-                     border border-white/10 shadow-lg
+            className="relative p-1 rounded-full bg-black/60 backdrop-blur-xl
+                     border border-white/20 shadow-lg
+                     flex items-center justify-center
+                     before:absolute before:inset-0 before:rounded-full
+                     before:bg-gradient-to-b before:from-white/20 before:to-transparent
                      overflow-hidden group"
           >
-            {/* Enhanced animated background rings with more vibrant colors */}
-            <div className="absolute inset-0">
-              <motion.div
-                animate={{
-                  background: [
-                    'radial-gradient(circle at center, rgba(167, 139, 250, 0.5) 0%, transparent 70%)',
-                    'radial-gradient(circle at center, rgba(244, 114, 182, 0.5) 0%, transparent 70%)',
-                    'radial-gradient(circle at center, rgba(99, 102, 241, 0.5) 0%, transparent 70%)',
-                    'radial-gradient(circle at center, rgba(167, 139, 250, 0.5) 0%, transparent 70%)'
-                  ],
-                  scale: [1, 1.2, 1.1, 1],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 rounded-full"
-              />
-              <motion.div
-                animate={{
-                  scale: [1.2, 1, 1.2],
-                  opacity: [0.4, 0.7, 0.4]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 rounded-full border border-white/40"
-              />
-            </div>
-
-            {/* Icon with enhanced glow */}
+            {/* Rotating compass with enhanced effects */}
             <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: 360,
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              className="relative z-10"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="relative z-10 p-1.5"
             >
-              <Compass className="w-5 h-5 text-white group-hover:text-transparent
-                       group-hover:bg-clip-text group-hover:bg-gradient-to-r
-                       group-hover:from-violet-400 group-hover:via-fuchsia-400 
-                       group-hover:to-cyan-400 transition-colors duration-300" />
+              <Compass className="w-8 h-8 text-purple-400/90
+                       drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]
+                       group-hover:text-white
+                       transition-all duration-300
+                       [stroke-width:1.0]" />
             </motion.div>
 
-            {/* Enhanced glowing border with more vibrant colors */}
-            <motion.div
-              animate={{
-                boxShadow: [
-                  '0 0 0 0px rgba(167, 139, 250, 0.5)',
-                  '0 0 0 4px rgba(167, 139, 250, 0.2)',
-                  '0 0 0 0px rgba(167, 139, 250, 0.5)'
-                ]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute inset-0 rounded-full"
-            />
+            {/* Reduced glow effect */}
+            <div className="absolute inset-0 rounded-full opacity-30
+                          bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.1),transparent_50%)]" />
+
+            {/* Subtle shine effect */}
+            <div className="absolute inset-0 rounded-full 
+                          bg-gradient-to-br from-white/3 via-transparent to-transparent" />
           </motion.button>
         </div>
       </motion.div>
 
       {/* Enhanced Navigation Menu with Lightbox Effect */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isMenuOpen && (
           <>
-            {/* Lightbox Overlay with enhanced cosmic effect */}
+            {/* Lightbox Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 z-40 backdrop-blur-[12px] overscroll-none"
+              className="fixed inset-0 z-[40] backdrop-blur-[12px] overscroll-none"
             >
               <div className="absolute inset-0 bg-black/80" />
               <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.2),transparent_60%)]" />
-              
-              {/* Floating stars background effect */}
-              {Array.from({ length: 20 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0.1, scale: 0 }}
-                  animate={{ 
-                    opacity: [0.1, 0.5, 0.1],
-                    scale: [0, 1, 0],
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight
-                  }}
-                  transition={{
-                    duration: Math.random() * 3 + 2,
-                    repeat: Infinity,
-                    delay: Math.random() * 2
-                  }}
-                  className="absolute w-1 h-1 bg-white rounded-full"
-                />
-              ))}
+            </motion.div>
+
+            {/* StarField component */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StarField />
             </motion.div>
 
             {/* Centered Orbital Menu */}
             <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               className="fixed inset-0 flex items-center justify-center z-50"
               onClick={(e) => {
                 // Close menu when clicking outside the orbital circle
@@ -230,45 +215,78 @@ export const Navigation = () => {
               <div className="relative w-[300px] h-[300px]">
                 {/* Connecting Lines */}
                 <svg 
-                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  className="absolute inset-0 w-[400px] h-[400px] -translate-x-[50px] -translate-y-[50px] pointer-events-none"
+                  viewBox="0 0 400 400"
+                  preserveAspectRatio="xMidYMid meet"
                 >
-                  {/* Single circular path - reduced radius from 120 to 75 */}
-                  <motion.circle
-                    cx="150"
-                    cy="150"
-                    r="75"
-                    fill="none"
-                    stroke="url(#gradient-stroke-circle)"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeDasharray="4 6"
-                    filter="url(#glow)"
-                    animate={{
-                      strokeDashoffset: [0, 40]
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                  />
+                  {/* Create an orbit path for each menu item */}
+                  {navItems.map((_, index) => {
+                    const orbitRadius = [
+                      ORBIT_RADII.HOME,
+                      ORBIT_RADII.PROJECTS,
+                      ORBIT_RADII.SKILLS,
+                      ORBIT_RADII.CONTACT
+                    ][index]
+                    
+                    return (
+                      <circle
+                        key={`orbit-${index}`}
+                        cx="200"
+                        cy="200"
+                        r={orbitRadius}
+                        fill="none"
+                        stroke={`url(#gradient-stroke-${index})`}
+                        strokeWidth={1}
+                        strokeLinecap="round"
+                        filter="url(#glow)"
+                      />
+                    )
+                  })}
 
-                  {/* Simplified gradients */}
+                  {/* Updated gradients for each orbit */}
                   <defs>
+                    {/* Home orbit gradient - Cyan theme */}
                     <linearGradient 
-                      id="gradient-stroke-circle" 
+                      id="gradient-stroke-0" 
                       gradientUnits="userSpaceOnUse"
-                      x1="30"
-                      y1="150"
-                      x2="270"
-                      y2="150"
+                      x1="80" y1="200" x2="320" y2="200"
                     >
-                      <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.6" />
-                      <stop offset="100%" stopColor="#34D399" stopOpacity="0.6" />
+                      <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0.3" />
+                    </linearGradient>
+
+                    {/* Projects orbit gradient - Violet theme */}
+                    <linearGradient 
+                      id="gradient-stroke-1" 
+                      gradientUnits="userSpaceOnUse"
+                      x1="80" y1="200" x2="320" y2="200"
+                    >
+                      <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.3" />
+                    </linearGradient>
+
+                    {/* Skills orbit gradient - Rose theme */}
+                    <linearGradient 
+                      id="gradient-stroke-2" 
+                      gradientUnits="userSpaceOnUse"
+                      x1="80" y1="200" x2="320" y2="200"
+                    >
+                      <stop offset="0%" stopColor="#FB7185" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#E11D48" stopOpacity="0.3" />
+                    </linearGradient>
+
+                    {/* Contact orbit gradient - Amber theme */}
+                    <linearGradient 
+                      id="gradient-stroke-3" 
+                      gradientUnits="userSpaceOnUse"
+                      x1="80" y1="200" x2="320" y2="200"
+                    >
+                      <stop offset="0%" stopColor="#FCD34D" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.3" />
                     </linearGradient>
 
                     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                       <feMerge>
                         <feMergeNode in="coloredBlur" />
                         <feMergeNode in="SourceGraphic" />
@@ -277,33 +295,43 @@ export const Navigation = () => {
                   </defs>
                 </svg>
 
-                {/* Center Element - Now Clickable */}
+                {/* Center Element - faster rotation */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                   <motion.div
                     animate={{ rotate: -360 }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 rounded-full bg-black/80 backdrop-blur-xl
-                             border border-white/10 shadow-lg
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-16 h-16 rounded-full bg-black/80 backdrop-blur-xl
+                             border border-white/30 shadow-lg
                              flex items-center justify-center z-10
                              before:absolute before:inset-0 before:rounded-full
                              before:bg-gradient-to-b before:from-white/10 before:to-transparent
                              cursor-pointer hover:bg-black/60 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Compass className="w-10 h-10 text-purple-400" />
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Compass className="w-10 h-10 text-purple-400 stroke-[1.0]" />
+                    </motion.div>
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl" />
                   </motion.div>
                 </div>
 
-                {/* Orbital Ring */}
+                {/* Orbital Ring - slower rotation */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
                   className="absolute inset-0"
                 >
                   {navItems.map((item, index) => {
                     const angle = (index * 360) / navItems.length
-                    const baseRadius = 90
+                    const baseRadius = [
+                      MENU_POSITIONS.HOME,
+                      MENU_POSITIONS.PROJECTS,
+                      MENU_POSITIONS.SKILLS,
+                      MENU_POSITIONS.CONTACT
+                    ][index]
                     
                     return (
                       <motion.a
@@ -328,31 +356,34 @@ export const Navigation = () => {
                           ]
                         }}
                         transition={{
-                          duration: 20,
+                          duration: 50,
                           repeat: Infinity,
                           ease: "linear",
                           times: [0, 0.5, 1]
                         }}
-                        onMouseEnter={() => !isMobile && setActiveIndex(index)}
-                        onMouseLeave={() => !isMobile && setActiveIndex(null)}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsMenuOpen(false)
-                        }}
+                        className="pointer-events-none"  // Disable pointer events on the entire anchor
                       >
                         <motion.div
                           animate={{ rotate: -360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          whileHover={{ scale: 1.2 }}
+                          transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                          whileHover={{ scale: 1.1 }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.location.href = item.href
+                            setIsMenuOpen(false)
+                          }}
+                          onMouseEnter={() => !isMobile && setActiveIndex(index)}
+                          onMouseLeave={() => !isMobile && setActiveIndex(null)}
                           className={`
                             p-4 rounded-full relative backdrop-blur-lg
                             before:absolute before:inset-0 before:rounded-full
                             before:bg-gradient-to-b before:from-white/10 before:to-transparent
-                            ${index === 0 && 'bg-cyan-500/20 hover:bg-cyan-500/30'}
-                            ${index === 1 && 'bg-violet-500/20 hover:bg-violet-500/30'}
-                            ${index === 2 && 'bg-rose-500/20 hover:bg-rose-500/30'}
-                            ${index === 3 && 'bg-amber-500/20 hover:bg-amber-500/30'}
+                            ${index === 0 && 'bg-cyan-500/20 hover:bg-cyan-500/30 z-[40]'}
+                            ${index === 1 && 'bg-violet-500/20 hover:bg-violet-500/30 z-[30]'}
+                            ${index === 2 && 'bg-rose-500/20 hover:bg-rose-500/30 z-[20]'}
+                            ${index === 3 && 'bg-amber-500/20 hover:bg-amber-500/30 z-[10]'}
                             transition-colors duration-300
+                            pointer-events-auto cursor-pointer
                           `}
                         >
                           {/* Icon without any glow effects */}
@@ -372,10 +403,17 @@ export const Navigation = () => {
                               opacity: isMobile || activeIndex === index ? 1 : 0,
                               y: isMobile || activeIndex === index ? 0 : 10
                             }}
-                            className="absolute top-14 left-1/2 -translate-x-1/2
-                                     px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md
-                                     text-sm whitespace-nowrap border border-white/10
-                                     shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+                            className={`
+                              absolute top-14 left-1/2 -translate-x-1/2
+                              px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md
+                              text-sm whitespace-nowrap border border-white/10
+                              shadow-[0_4px_20px_rgba(0,0,0,0.2)]
+                              pointer-events-none
+                              ${index === 0 && 'z-[45]'}
+                              ${index === 1 && 'z-[35]'}
+                              ${index === 2 && 'z-[25]'}
+                              ${index === 3 && 'z-[15]'}
+                            `}
                           >
                             {item.name}
                           </motion.span>

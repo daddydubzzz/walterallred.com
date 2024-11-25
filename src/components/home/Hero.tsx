@@ -22,7 +22,7 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h2 className="text-purple-400 font-semibold mb-4">Full-Stack Developer & UI/UX Designer</h2>
+            <h2 className="text-purple-400 font-semibold mb-4">Product Designer & Full-Stack Developer</h2>
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="text-gradient">Crafting Digital</span>{' '}
               <span className="text-white">Experiences</span>
